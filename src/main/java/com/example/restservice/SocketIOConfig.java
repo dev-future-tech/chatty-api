@@ -23,11 +23,6 @@ public class SocketIOConfig {
     // SocketIOServer class is used to create a socket server
     private SocketIOServer server;
 
-    public SocketIOConfig(String socketHost, int socketPort) {
-        this.socketHost = socketHost;
-        this.socketPort = socketPort;
-    }
-
     @Bean
     public SocketIOServer socketIOServer() {
         // Configuration object holds the server settings
