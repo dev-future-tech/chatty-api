@@ -17,7 +17,7 @@ public class PromptConfiguration {
     OpenAiApi openAiApi() {
         return OpenAiApi.builder()
                 .apiKey(new NoopApiKey())
-                .baseUrl("http://localhost:1234")
+                .baseUrl("http://localhost:8090")
                 .restClientBuilder(RestClient.builder()
                         // Force HTTP/1.1 for both streaming and non-streaming
                         .requestFactory(new JdkClientHttpRequestFactory(HttpClient.newBuilder()

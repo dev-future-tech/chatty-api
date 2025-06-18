@@ -1,0 +1,84 @@
+= Wiki
+:author: Anthony Ikeda <anthony.ikeda@gmail.com>
+
+== Overview
+
+This is just a basic knowledge base of how to use Spring AI.
+
+
+== PromptTemplate
+
+The PromptTemplate helps to standardise prompts by creating the prompt with placeholders to replace values.
+
+For example, when we want to prompt for software recommendations a reusable `PromptTemplate` can be created:
+
+[source,java,numbered]
+----
+ PromptTemplate template = PromptTemplate.builder()
+    .renderer(StTemplateRenderer.builder().startDelimiterToken('<').endDelimiterToken('>').build())
+    .template("Give me the top 10 IDEs that are great for programming in <language>.")
+    .build();
+
+String prompt = template.render(Map.of("language", "Java"));
+System.out.println(prompt);
+----
+
+The output of this snippet of code will be:
+
+`Give me the top 10 IDEs that are great for programming in Java.`
+
+This is a reusable asset that allows you to prompt as many times as you need to replace the placeholder `<language>`.
+
+There are 3 types of PromptTemplate:
+
+. PromptTemplateStringActions - this focuses only on strings that are then used to send as is.
+. PromptTemplateMessageActions - this creates a Message object with the requested prompt template
+. PromptTemplateActions - this creates a Prompt object that is used in `ChatModel`
+
+[source,java,numbered]
+----
+@Test
+public void testPromptTemplate() {
+    PromptTemplate template = PromptTemplate.builder()
+            .renderer(StTemplateRenderer.builder().startDelimiterToken('<').endDelimiterToken('>').build())
+            .template("Give me 3 songs that were sung by <artist>.")
+            .build();
+
+    String prompt = template.render(Map.of("artist", "Michael Jackson"));
+
+    System.out.println(prompt);
+
+    PromptTemplateMessageActions messageTemplate = PromptTemplate.builder()
+            .renderer(StTemplateRenderer.builder().startDelimiterToken('<').endDelimiterToken('>').build())
+            .template("List me the best IDE for writing <language> applications.")
+            .build();
+
+
+    Message message = messageTemplate.createMessage(Map.of("language", "Java"));
+
+    System.out.println(message.getMessageType());
+    System.out.println(message.getText());
+
+    PromptTemplateActions templateActions = PromptTemplate.builder()
+            .renderer(StTemplateRenderer.builder().startDelimiterToken('{').endDelimiterToken('}').build())
+            .template("Show me 5 people that can write programs in {language}")
+            .build();
+
+    Prompt promptPrompt = templateActions.create(Map.of("language", "Java"));
+    System.out.println(promptPrompt.getContents());
+}
+----
+
+The respective outputs of these are:
+----
+Give me 3 songs that were sung by Michael Jackson.
+USER
+List me the best IDE for writing Java applications.
+Show me 5 people that can write programs in Java
+----
+
+
+=== How does this help you?
+
+PromptTemplate can help to externalise all your prompts and ensure consistency when creating prompts.
+
