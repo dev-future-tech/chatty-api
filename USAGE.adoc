@@ -1,0 +1,78 @@
+= USAGE
+
+:author: Anthony Ikeda <anthony.ikeda@gmail.com>
+
+== Local LLM tooling
+
+When using this API with local tool LLM tool LM Studio, you will need to address the issues that LM Studio has with HTTP connections.
+
+There seems to be issues with how LM Studio handles connections, so calling the endpoints (http://127.0.0.1:1234) will not be possible with Spring AI.
+
+=== Running the NGINX Proxy
+
+Once you have installed NGINX the quick way to incorporate the proxy is by updating the `nginx.conf` file. If you installed NGINX using `homebrew` then this is most likely at: `/opt/homebrew/etc/nginx/nginx.conf`.
+
+First, you will want to add the upstream to your config. Position this in the `http` block:
+
+[source,text,numbered]
+----
+http {
+    upstream backend {
+        server 127.0.0.1:1234;
+    }
+}
+----
+
+After this we want to enable `http2` on the `server` directive:
+
+[source,text,numbered]
+----
+http {
+    server {
+        listen 8090;
+        http2 on;
+    }
+}
+----
+
+Next we want to update the `/` route to proxy requests to the backend, LM Studio server:
+
+[source,text,numbered]
+----
+http {
+    server {
+        listen 8090;
+        http2 on;
+
+        location / {
+            proxy_pass http://backend;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto http;
+        }
+    }
+}
+----
+
+
+=== Set up your Spring Boot Project for LM Studio
+
+Now that NGINX is running and proxying to the LM Studio server, you now need to configure your Spring Boot application.
+
+In your `application.properties` file set up the following properties:
+
+[source,properties,numbered]
+----
+spring.ai.openai.api-key=sk-proj
+spring.ai.openai.base-url=http://localhost:8090
+spring.ai.openai.chat.options.model=meta-llama-3.1-8b-instruct
+spring.ai.openai.chat.options.temperature=0.7
+----
+
+Things to note here:
+
+. Something, basically anything, has to be supplied for the `spring.ai.openai.api-key` since Spring AI will check that a key exists regardless of the LLM provider you use.
+. You will use the URL you configured in NGINX (in this case `localhost` on port `8090`) for the `spring.ai.openai.base-url`
+
+

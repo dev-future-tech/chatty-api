@@ -6,19 +6,16 @@ import com.corundumstudio.socketio.SocketIOServer;
 import com.corundumstudio.socketio.listener.DataListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.ai.chat.model.ChatResponse;
-import org.springframework.ai.chat.prompt.Prompt;
-import org.springframework.ai.openai.OpenAiChatModel;
 import org.springframework.stereotype.Component;
 
 @Component
-public class ChatController {
+public class SocketController {
 
     private final Logger log = LoggerFactory.getLogger(this.getClass());
     protected final SocketIOServer socketServer;
 
 
-    public ChatController(SocketIOServer socketServer) {
+    public SocketController(SocketIOServer socketServer) {
         this.socketServer = socketServer;
         this.socketServer.addEventListener("demoEvent", SocketDetail.class, demoEvent);
     }

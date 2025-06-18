@@ -1,10 +1,14 @@
 package com.example.restservice.greeting;
 
+import com.example.restservice.tools.PoemTools;
 import org.junit.jupiter.api.Test;
+import org.springframework.ai.chat.prompt.PromptTemplate;
 import org.springframework.ai.openai.api.OpenAiApi;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.ResponseEntity;
+import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor;
 
 import java.util.List;
 
@@ -13,6 +17,9 @@ public class ChatTest {
 
     @Autowired
     OpenAiApi openAiApi;
+
+    @Autowired
+    ChatClient.Builder chatClientBuilder;
 
     @Test
     public void testChat() {
@@ -40,5 +47,26 @@ public class ChatTest {
 
         ResponseEntity<OpenAiApi.ChatCompletion> completion = openAiApi.chatCompletionEntity(request);
         System.out.println(completion.toString());
+    }
+
+
+    @Test
+    public void chatTest2() {
+        PoemTools poemTools = new PoemTools();
+
+        ChatClient chatClient = chatClientBuilder
+                .defaultAdvisors(new SimpleLoggerAdvisor())
+                .build();
+
+        PromptTemplate pt = new PromptTemplate("""
+        Name me 3 composers
+        """);
+
+        String result = chatClient.prompt(pt.create())
+                .tools(poemTools)
+                .call()
+                .content();
+
+        System.out.println(result);
     }
 }
