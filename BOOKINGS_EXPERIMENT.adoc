@@ -1,0 +1,33 @@
+= Bookings Experiment
+
+== Overview
+
+This controller will offer the ability to find a reservation for a customer based on their past bookings with the company.
+
+Past bookings will include:
+
+* Room type
+* Dates stayed
+* Amount spent (time and cost)
+* Any other expenditures that were tracked (e.g. room service, restaurant orders)
+* Destination (City & Country)
+
+It should also be able to tap into any hobbies the user has recorded to influence the trip
+
+Other inputs will be:
+
+* current known campaigns
+* locations of current destinations
+
+Different customers will be created each with a bias to a particular part of the world.
+
+
+== Input Data
+
+[source,csv,numbered]
+----
+user_id,trip_id,destination,room_type,trip_started,trip_ended,total_cost
+40001,1234,"London,UK",STANDARD,05-20-2022,05-31-2022,$5478
+40001,1235,"Barcelona,Spain",STANDARD,07-12-2022,07-22-2022,$3200
+40001,1236,"Perth,Australia",PREMIUM,03-10-2021,03-30-2021,$4003
+----

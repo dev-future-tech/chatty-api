@@ -7,10 +7,15 @@ import org.springframework.ai.chat.messages.UserMessage;
 import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.ai.chat.model.Generation;
 import org.springframework.ai.chat.prompt.*;
+import org.springframework.ai.converter.BeanOutputConverter;
+import org.springframework.ai.converter.ListOutputConverter;
+import org.springframework.ai.converter.MapOutputConverter;
+import org.springframework.ai.converter.StructuredOutputConverter;
 import org.springframework.ai.openai.api.OpenAiApi;
 import org.springframework.ai.template.st.StTemplateRenderer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.core.convert.support.DefaultConversionService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor;
@@ -110,14 +115,26 @@ public class ChatTest {
         System.out.println(promptPrompt.getContents());
     }
 
+    record MovieOutlines(String genre, List<String> movies) { }
+
     @Test
     public void testUserMessage() {
+        BeanOutputConverter<MovieOutlines> beanOutputConverter = new BeanOutputConverter<>(MovieOutlines.class);
+        String format = beanOutputConverter.getFormat();
+        System.out.println(format);
+
         String userText = """
                 Tell me the titles of famous science fiction tv shows from the 70s.
                 Write at least a sentence giving an overview of the show.
+                {format}
                 """;
 
-        Message userMessage = new UserMessage(userText);
+        PromptTemplate promptTemplate = PromptTemplate.builder()
+                .renderer(StTemplateRenderer.builder().startDelimiterToken('{').endDelimiterToken('}').build())
+                .template(userText)
+                .build();
+
+        Message userMessage = promptTemplate.createMessage(Map.of("format", format));
 
         String systemText = """
                 You are an desk clerk with a premium airline company.
@@ -129,10 +146,59 @@ public class ChatTest {
         SystemPromptTemplate systemPromptTemplate = new SystemPromptTemplate(systemText);
         Message systemMessage = systemPromptTemplate.createMessage(Map.of("name", "Roberto", "gender", "male", "voice", "masculine"));
         Prompt prompt = new Prompt(List.of(userMessage, systemMessage));
-        List<Generation> response = chatModel.call(prompt).getResults();
+        Generation response = chatModel.call(prompt).getResult();
 
-        for(var resp : response) {
-            System.out.println(resp.getOutput().getText());
-        }
+
+        System.out.println(response.getOutput().getText());
+
+        MovieOutlines outlines = beanOutputConverter.convert(response.getOutput().getText());
+        System.out.println(outlines.genre);
+        System.out.println(outlines.movies);
+
     }
+
+    @Test
+    public void testOutputConvertorMap() {
+        MapOutputConverter mapOutputConverter = new MapOutputConverter();
+
+        String format = mapOutputConverter.getFormat();
+
+        String template = """
+                Provide me a List of {subject}
+                {format}
+                """;
+
+        PromptTemplate promptTemplate = PromptTemplate.builder()
+                .template(template)
+                .build();
+        Prompt prompt = promptTemplate.create(Map.of("subject", "an array of domestic pets under the key name 'pets'",
+                "format", format));
+
+        Generation response = chatModel.call(prompt).getResult();
+
+        Map<String, Object> result = mapOutputConverter.convert(response.getOutput().getText());
+        System.out.println(result);
+    }
+
+    @Test
+    public void listingSportsTest() {
+        ListOutputConverter listOutputConverter = new ListOutputConverter(new DefaultConversionService());
+
+        String format = listOutputConverter.getFormat();
+        String template = """
+                List five {subject}
+                {format}
+                """;
+
+        Prompt prompt = PromptTemplate.builder()
+                .template(template)
+                .build().create(Map.of("subject", "sports", "format", format));
+
+        Generation response = chatModel.call(prompt).getResult();
+        List<String> list = listOutputConverter.convert(response.getOutput().getText());
+
+        System.out.println(list);
+    }
+
+
 }

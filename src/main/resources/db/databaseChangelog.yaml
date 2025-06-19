@@ -1,0 +1,58 @@
+databaseChangeLog:
+  - changeSet:
+      id: 1
+      author: Anthony Ikeda
+      changes:
+        - createTable:
+            tableName: customer
+            columns:
+              - column:
+                  name: customer_id
+                  type: int
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: customer_name
+                  type: varchar(120)
+                  constraints:
+                    nullable: false
+        - createTable:
+            tableName: customer_booking
+            columns:
+              - column:
+                  name: booking_id
+                  type: int
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: customer_id
+                  type: int
+                  constraints:
+                    nullable: false
+                    foreignKeyName: customer_booking_fk
+                    referencedColumnNames: customer_id
+                    referencedTableName: customer
+              - column:
+                  name: destination
+                  type: varchar(120)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: start_date
+                  type: date
+                  constraints:
+                    nullable: false
+              - column:
+                  name: end_date
+                  type: date
+                  constraints:
+                    nullable: false
+              - column:
+                  name: total_cost
+                  type: currency
+                  constraints:
+                    nullable: false
