@@ -1,24 +1,23 @@
 package com.example.restservice.greeting;
 
+import com.example.restservice.tools.CodeRetrievalTool;
 import com.example.restservice.tools.PoemTools;
 import org.junit.jupiter.api.Test;
+import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor;
 import org.springframework.ai.chat.messages.Message;
-import org.springframework.ai.chat.messages.UserMessage;
 import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.ai.chat.model.Generation;
 import org.springframework.ai.chat.prompt.*;
 import org.springframework.ai.converter.BeanOutputConverter;
 import org.springframework.ai.converter.ListOutputConverter;
 import org.springframework.ai.converter.MapOutputConverter;
-import org.springframework.ai.converter.StructuredOutputConverter;
 import org.springframework.ai.openai.api.OpenAiApi;
 import org.springframework.ai.template.st.StTemplateRenderer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.core.convert.support.DefaultConversionService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.ai.chat.client.ChatClient;
-import org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor;
 
 import java.util.List;
 import java.util.Map;
@@ -200,5 +199,32 @@ public class ChatTest {
         System.out.println(list);
     }
 
+    @Test
+    public void testCodeAnalysis() {
+        BeanOutputConverter<String> beanOutputConverter = new BeanOutputConverter<>(String.class);
+        CodeRetrievalTool codeTool = new CodeRetrievalTool();
+
+        String format = beanOutputConverter.getFormat();
+
+        ChatClient chatClient = chatClientBuilder
+                .defaultAdvisors(new SimpleLoggerAdvisor())
+                .build();
+
+        PromptTemplate pt = PromptTemplate.builder()
+                .renderer(StTemplateRenderer.builder().startDelimiterToken('{').endDelimiterToken('}').build())
+                .template("""
+                Analyze this code and give me a non-technical description of its capabilities
+                {format}
+            """)
+                .build();
+
+        String result = chatClient.prompt(pt.create(Map.of("format", format)))
+                .tools(codeTool)
+                .call()
+                .content();
+
+        System.out.println(result);
+
+    }
 
 }

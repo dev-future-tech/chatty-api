@@ -1,5 +1,7 @@
 package com.example.restservice.bookings;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import org.springframework.data.jpa.convert.threeten.Jsr310JpaConverters;
 
@@ -16,19 +18,23 @@ public class CustomerBooking {
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name="customer_id", referencedColumnName = "customer_id")
+    @JsonIgnore
     private Customer customer;
 
     private String destination;
 
     @Convert(converter = Jsr310JpaConverters.LocalDateConverter.class)
     @Column(name="start_date")
+    @JsonProperty("start_date")
     private java.time.LocalDate startDate;
 
     @Convert(converter = Jsr310JpaConverters.LocalDateConverter.class)
     @Column(name="end_date")
+    @JsonProperty("end_date")
     private java.time.LocalDate endDate;
 
     @Column(name="total_cost")
+    @JsonProperty("total_cost")
     private Double totalCost;
 
     public Integer getBookingId() {

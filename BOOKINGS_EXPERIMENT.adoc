@@ -31,3 +31,115 @@ user_id,trip_id,destination,room_type,trip_started,trip_ended,total_cost
 40001,1235,"Barcelona,Spain",STANDARD,07-12-2022,07-22-2022,$3200
 40001,1236,"Perth,Australia",PREMIUM,03-10-2021,03-30-2021,$4003
 ----
+
+Prompts:
+[source,text, numbered]
+----
+Based on {customerId} travel, recommend a destination for an upcoming {travel}
+----
+
+`{travel}` can be either:
+
+* `vacation`
+* `hosting a conference`
+* `wedding celebration`
+* `birthday celebration`
+
+
+
+== Searching for travel season
+
+[source,text]
+----
+Based on the response, we can see that there are four travel plans for customerId 1.
+
+To break them into different seasons of the year, we can use the following Python code:
+
+```
+import pandas as pd
+
+# Define the data
+data = [
+    {"bookingId":1,"customer":{"customerId":1,"customerName":"Maureen Green"},"destination":"London,UK","startDate":[2022,5,20],"endDate":[2022,5,31],"totalCost":5478.0},
+    {"bookingId":2,"customer":{"customerId":1,"customerName":"Maureen Green"},"destination":"Barcelona,Spain","startDate":[2022,7,12],"endDate":[2022,7,22],"totalCost":3200.0},
+    {"bookingId":3,"customer":{"customerId":1,"customerName":"Maureen Green"},"destination":"Dublin,Ireland","startDate":[2021,8,1],"endDate":[2021,8,12],"totalCost":4355.0},
+    {"bookingId":4,"customer":{"customerId":1,"customerName":"Maureen Green"},"destination":"Paris,France","startDate":[2020,4,15],"endDate":[2020,4,30],"totalCost":2243.0},
+    {"bookingId":5,"customer":{"customerId":1,"customerName":"Maureen Green"},"destination":"London,UK","startDate":[2020,2,2],"endDate":[2020,2,15],"totalCost":1999.0}
+]
+
+# Create a DataFrame
+df = pd.DataFrame(data)
+
+# Define the seasons
+seasons = {
+    "Winter": [12, 1, 2],
+    "Spring": [3, 4, 5],
+    "Summer": [6, 7, 8],
+    "Autumn": [9, 10, 11]
+}
+
+# Create a new column for the season
+df['season'] = pd.NA
+
+# Loop through each row and determine the season
+for index, row in df.iterrows():
+    month = row['startDate'][0]
+    if month in seasons['Winter']:
+        df.loc[index, 'season'] = 'Winter'
+    elif month in seasons['Spring']:
+        df.loc[index, 'season'] = 'Spring'
+    elif month in seasons['Summer']:
+        df.loc[index, 'season'] = 'Summer'
+    elif month in seasons['Autumn']:
+        df.loc[index, 'season'] = 'Autumn'
+
+# Print the result
+print(df)
+```
+
+This code will output:
+
+|   | bookingId | customer.customerName | destination       | startDate       | endDate         | totalCost | season     |
+|---|-----------|------------------------|--------------------|-----------------|-----------------|-----------|------------|
+| 0 | 1         | Maureen Green          | London, UK         | [2022, 5, 20]   | [2022, 5, 31]   | 5478.0    | Spring     |
+| 1 | 2         | Maureen Green          | Barcelona, Spain   | [2022, 7, 12]   | [2022, 7, 22]   | 3200.0    | Summer     |
+| 2 | 3         | Maureen Green          | Dublin, Ireland    | [2021, 8, 1]    | [2021, 8, 12]   | 4355.0    | Summer     |
+| 3 | 4         | Maureen Green          | Paris, France      | [2020, 4, 15]   | [2020, 4, 30]   | 2243.0    | Spring     |
+| 4 | 5         | Maureen Green          | London, UK         | [2020, 2, 2]    | [2020, 2, 15]   | 1999.0    | Winter     |
+
+Note that this code assumes that the startDate and endDate are represented as lists of three integers (year, month, day). If they are represented differently, you may need to modify the code accordingly.
+
+----
+
+[source,text]
+----
++---------------------------------------------------------------------------------------------------+
+|                                  ENCOUNTER MANAGEMENT WORKFLOW                                 |
++---------------------------------------------------------------------------------------------------+
+
++-------------------+     +---------------------+     +------------------------+     +-------------------+
+|  Patient          |     | Provider            |     | Location/Department    |     | Encounter Type    |
+|  Identification   +---->| Assignment          +---->| Determination          +---->| Selection         |
++-------------------+     +---------------------+     +------------------------+     +-------------------+
+         |                                                                                   |
+         v                                                                                   v
++-------------------+     +---------------------+     +------------------------+     +-------------------+
+|                   |     | Clinical            |     | Form Data              |     | Encounter         |
+|  Encounter        |<----+ Observations        |<----+ Collection             |<----+ Creation         |
+|  Documentation    |     | & Orders           |     |                        |     |                   |
++-------------------+     +---------------------+     +------------------------+     +-------------------+
+         |                                                                                   ^
+         v                                                                                   |
++-------------------+     +---------------------+     +------------------------+     +-------------------+
+|  Encounter        |     | Form Translation    |     | Storage & FHIR        |     | Visit Matching    |
+|  Validation       +---->| (if needed)         +---->| Resource Creation     +---->| & Association     |
++-------------------+     +---------------------+     +------------------------+     +-------------------+
+         |
+         v
++--------------------------------+     +--------------------------------+
+|                                |     |                                |
+|  Encounter Search &            |     |  Encounter Update,             |
+|  Retrieval APIs                |<--->|  Patch, Delete APIs            |
+|                                |     |                                |
++--------------------------------+     +--------------------------------+
+----

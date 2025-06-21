@@ -1,0 +1,75 @@
+= Code Analyzer
+
+== Tools
+
+Incorporates tools that can retrieve the code from a database
+
+[source,java,numbered]
+----
+
+import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor;
+import org.springframework.ai.chat.prompt.PromptTemplate;
+import org.springframework.ai.converter.BeanOutputConverter;import org.springframework.ai.tool.annotation.Tool;
+
+
+class CodeRetrievalTool {
+
+    @Tool
+    public String getCode() {
+        return """
+            from fastapi import APIRouter, Response
+            from db_session import database_instance
+            from greeting_service import GreetingRequest, Greeting, create_greeting, get_greetings
+
+            greeting_router = APIRouter()
+            @greeting_router.get("/greeting/{greeting_id}")
+            async def get_single_greeting(greeting_id: int):
+                async with greeting_router.app.state.pool.acquire() as connection:
+                    row = await connection.fetchrow("select greeting from greetings where greeting_id = $1", greeting_id)
+                    return { "greeting_id": greeting_id, "greeting" : row["greeting"]}
+
+            @greeting_router.post("/greeting")
+            async def greeting_create(greeting: GreetingRequest):
+                print(greeting.greeting)
+                id = await create_greeting(database_instance, greeting=greeting.greeting)
+                headers = {"Location" : f"/items/{id}"}
+                return Response(status_code=201, headers=headers)
+
+            @greeting_router.get("/greeting", response_model=list[Greeting])
+            async def greetings():
+                results = await get_greetings(database_instance, 0, 10)
+                return results
+
+        """;
+    }
+}
+
+class CodeAnalyzer {
+    final BeanOutputConverter<String> beanOutputConverter = new BeanOutputConverter<>(String.class);
+    private CodeRetrievalTool codeTool = new CodeRetrievalTool();
+
+    public void analyzeCode() {
+        String format = this.beanOutputConverter.getFormat();
+
+        ChatClient client = ChatClient.builder()
+            .defaultAdvisors(new SimpleLoggerAdvisor())
+            .build();
+
+        PromptTemplate pt = PromptTemplate.builder()
+            .renderer(StTemplateRenderer.builder().startDelimiterToken('{').endDelimiterToken('}').build())
+            .template("""
+                Analyze this code and give me a non-technical description of its capabilities
+                {format}
+            """)
+            .build();
+
+        String result = chatClient.prompt(pt.create())
+            .tools(poemTools)
+            .call()
+            .content();
+
+        System.out.println(result);
+    }
+}
+----

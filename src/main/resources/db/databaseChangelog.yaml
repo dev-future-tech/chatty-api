@@ -56,3 +56,27 @@ databaseChangeLog:
                   type: currency
                   constraints:
                     nullable: false
+  - changeSet:
+      id: 2
+      author: Anthony Ikeda
+      changes:
+        - createTable:
+            tableName: destinations
+            columns:
+              - column:
+                  name: destination_id
+                  type: integer
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: city
+                  type: varchar(120)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: description
+                  type: text
+                  constraints:
+                    nullable: true
