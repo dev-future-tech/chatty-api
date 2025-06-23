@@ -41,7 +41,7 @@ public class ChatTest {
                 Your response should be in JSON format.
                 Do not include any explanations, only provide a RFC8259 compliant JSON response following this format without deviation.
                 Do not include markdown code blocks in your response.
-                Remove the ```json markdown from the output.
+                Remove the json markdown from the output.
                 Here is the JSON Schema instance your output must adhere to:
                 ```
                 { "$schema" : "https://json-schema.org/draft/2020-12/schema" }
@@ -71,16 +71,16 @@ public class ChatTest {
                 .defaultAdvisors(new SimpleLoggerAdvisor())
                 .build();
 
-        PromptTemplate pt = new PromptTemplate("""
-        Name me 3 composers
-        """);
+        PromptTemplate template = PromptTemplate.builder()
+                .template("Name 3 composers")
+                .build();
 
-        String result = chatClient.prompt(pt.create())
+        String result = chatClient.prompt(template.create())
                 .tools(poemTools)
                 .call()
                 .content();
 
-        System.out.println(result);
+        System.out.printf("Result: %s%n", result);
     }
 
     @Test
@@ -92,7 +92,7 @@ public class ChatTest {
 
         String prompt = template.render(Map.of("artist", "Michael Jackson"));
 
-        System.out.println(prompt);
+        System.out.printf("Prompt: %s%n", prompt);
 
         PromptTemplateMessageActions messageTemplate = PromptTemplate.builder()
                 .renderer(StTemplateRenderer.builder().startDelimiterToken('<').endDelimiterToken('>').build())
@@ -102,8 +102,8 @@ public class ChatTest {
 
         Message message = messageTemplate.createMessage(Map.of("language", "Java"));
 
-        System.out.println(message.getMessageType());
-        System.out.println(message.getText());
+        System.out.printf("Message Type: %s%n", message.getMessageType());
+        System.out.printf("Message text: %s%n", message.getText());
 
         PromptTemplateActions templateActions = PromptTemplate.builder()
                 .renderer(StTemplateRenderer.builder().startDelimiterToken('{').endDelimiterToken('}').build())
@@ -111,7 +111,7 @@ public class ChatTest {
                 .build();
 
         Prompt promptPrompt = templateActions.create(Map.of("language", "Java"));
-        System.out.println(promptPrompt.getContents());
+        System.out.printf("Response: %s%n", promptPrompt.getContents());
     }
 
     record MovieOutlines(String genre, List<String> movies) { }
@@ -213,7 +213,7 @@ public class ChatTest {
         PromptTemplate pt = PromptTemplate.builder()
                 .renderer(StTemplateRenderer.builder().startDelimiterToken('{').endDelimiterToken('}').build())
                 .template("""
-                Analyze this code and give me a non-technical description of its capabilities
+                Analyze this code and give me a non-technical description of what it does.
                 {format}
             """)
                 .build();
