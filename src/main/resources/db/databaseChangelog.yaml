@@ -80,3 +80,13 @@ databaseChangeLog:
                   type: text
                   constraints:
                     nullable: true
+  - changeSet:
+      id: 3
+      author: Anthony Ikeda
+      changes:
+        - addColumn:
+            tableName: destinations
+            columns:
+              - column:
+                  name: image_url
+                  type: varchar(150)

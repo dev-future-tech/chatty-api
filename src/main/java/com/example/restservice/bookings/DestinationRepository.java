@@ -8,4 +8,5 @@ import java.util.List;
 @Repository
 public interface DestinationRepository extends JpaRepository<Destination, Long> {
 
+    Destination findByDestinationId(Long destinationId);
 }

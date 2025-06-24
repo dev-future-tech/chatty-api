@@ -28,6 +28,10 @@ public class Application {
     }
     @Bean
     SecurityFilterChain clientSecurityFilterChain(HttpSecurity http) throws Exception {
+        http.authorizeHttpRequests(cust ->
+                cust.requestMatchers("/images/**")
+                        .permitAll());
+
         http.oauth2ResourceServer(auth -> {
             auth.jwt(jwt -> {
                 jwt.jwtAuthenticationConverter(jwtAuthenticationConverter());
