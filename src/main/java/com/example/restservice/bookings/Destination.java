@@ -21,6 +21,10 @@ public class Destination {
     @Column
     private String description;
 
+    @Column(name = "image_url")
+    @JsonProperty("image_url")
+    private String imageUrl;
+
     public Integer getDestinationId() {
         return destinationId;
     }
@@ -43,5 +47,13 @@ public class Destination {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
     }
 }
