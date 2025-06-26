@@ -42,6 +42,8 @@ public class SocketIOConfig {
 
     @PreDestroy
     public void stopSocketServer() {
+        log.info("Shutting down SocketIO Server...");
         this.server.stop();
+        log.info("SocketIO Server shut down...");
     }
 }

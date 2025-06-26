@@ -4,7 +4,11 @@ import com.example.restservice.tools.CodeRetrievalTool;
 import com.example.restservice.tools.PoemTools;
 import org.junit.jupiter.api.Test;
 import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.ai.chat.client.advisor.PromptChatMemoryAdvisor;
 import org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor;
+import org.springframework.ai.chat.memory.ChatMemory;
+import org.springframework.ai.chat.memory.repository.jdbc.JdbcChatMemoryRepository;
+import org.springframework.ai.chat.memory.repository.jdbc.JdbcChatMemoryRepositoryDialect;
 import org.springframework.ai.chat.messages.Message;
 import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.ai.chat.model.Generation;
@@ -19,6 +23,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.core.convert.support.DefaultConversionService;
 import org.springframework.http.ResponseEntity;
 
+import javax.sql.DataSource;
 import java.util.List;
 import java.util.Map;
 
@@ -32,7 +37,12 @@ public class ChatTest {
     ChatModel chatModel;
 
     @Autowired
+    PromptChatMemoryAdvisor jdbcAdvisor;
+
+    @Autowired
     ChatClient.Builder chatClientBuilder;
+    @Autowired
+    private DataSource dataSource;
 
     @Test
     public void testChat() {
@@ -56,7 +66,7 @@ public class ChatTest {
                 null,
                 null, null
         );
-        OpenAiApi.ChatCompletionRequest request = new OpenAiApi.ChatCompletionRequest(List.of(message), "meta-llama-3.1-8b-instruct", 0.7);
+        OpenAiApi.ChatCompletionRequest request = new OpenAiApi.ChatCompletionRequest(List.of(message), "llama3.2", 0.7);
 
         ResponseEntity<OpenAiApi.ChatCompletion> completion = openAiApi.chatCompletionEntity(request);
         System.out.println(completion.toString());
@@ -68,7 +78,7 @@ public class ChatTest {
         PoemTools poemTools = new PoemTools();
 
         ChatClient chatClient = chatClientBuilder
-                .defaultAdvisors(new SimpleLoggerAdvisor())
+                .defaultAdvisors(List.of(new SimpleLoggerAdvisor(), jdbcAdvisor))
                 .build();
 
         PromptTemplate template = PromptTemplate.builder()
@@ -77,10 +87,23 @@ public class ChatTest {
 
         String result = chatClient.prompt(template.create())
                 .tools(poemTools)
+                .advisors(List.of(new SimpleLoggerAdvisor(), jdbcAdvisor))
                 .call()
                 .content();
 
         System.out.printf("Result: %s%n", result);
+
+        PromptTemplate qTemplate = PromptTemplate.builder()
+                .template("Which of these composers were alive during the classical period of music?")
+                .build();
+
+        String eraResult = chatClient.prompt(qTemplate.create())
+                .advisors(List.of(new SimpleLoggerAdvisor(), jdbcAdvisor))
+                .call()
+                .content();
+
+        System.out.printf("Result: %s%n", eraResult);
+
     }
 
     @Test
