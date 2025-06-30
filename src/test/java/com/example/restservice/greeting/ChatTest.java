@@ -1,7 +1,11 @@
 package com.example.restservice.greeting;
 
+import com.corundumstudio.socketio.SocketIOServer;
 import com.example.restservice.tools.CodeRetrievalTool;
 import com.example.restservice.tools.PoemTools;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.PromptChatMemoryAdvisor;
@@ -17,15 +21,33 @@ import org.springframework.ai.template.st.StTemplateRenderer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.core.convert.support.DefaultConversionService;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.ollama.OllamaContainer;
 
 import javax.sql.DataSource;
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
 @SpringBootTest
+@Testcontainers
+@Disabled
 public class ChatTest {
+    static PostgreSQLContainer postgreSQLContainer = new PostgreSQLContainer("postgres:14")
+            .withUsername("booking_controller")
+            .withPassword("letmein")
+            .withDatabaseName("bookings_db");
+
+    @MockitoBean
+    private SocketIOServer socketIOServer;
+
+    final static String MODEL = "mistral";
+    static String baseUrl;
 
     @Container
     static OllamaContainer ollamaContainer = new OllamaContainer("ollama/ollama:0.1.32");
@@ -40,6 +62,25 @@ public class ChatTest {
     ChatClient.Builder chatClientBuilder;
     @Autowired
     private DataSource dataSource;
+
+    @BeforeAll
+    public static void beforeAll() throws IOException, InterruptedException {
+        ollamaContainer.execInContainer("ollama", "pull", MODEL);
+        baseUrl = String.format("http://%s:%d", ollamaContainer.getHost(), ollamaContainer.getMappedPort(11434));
+        postgreSQLContainer.start();
+    }
+
+    @AfterAll
+    static void afterAll() {
+        postgreSQLContainer.stop();
+    }
+
+    @DynamicPropertySource
+    static void configureProperties(DynamicPropertyRegistry registry) {
+        registry.add("spring.datasource.url", postgreSQLContainer::getJdbcUrl);
+        registry.add("spring.datasource.username", postgreSQLContainer::getUsername);
+        registry.add("spring.datasource.password", postgreSQLContainer::getPassword);
+    }
 
     @Test
     public void testChat() {

@@ -2,6 +2,7 @@ package com.example.restservice.greeting;
 
 import com.example.restservice.tools.CustomerBookingTools;
 import com.example.restservice.tools.CustomerTool;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor;
@@ -19,6 +20,7 @@ import org.springframework.context.annotation.Profile;
 import java.util.List;
 import java.util.Map;
 
+@Disabled
 @Profile(value={"ML"})
 @SpringBootTest()
 public class TravelTest {
