@@ -16,7 +16,7 @@ public class Customer {
     @Column(name="customer_name")
     private String customerName;
 
-    @@Column(name="email")
+    @Column(name="email")
     private String email;
 
     public int getCustomerId() {

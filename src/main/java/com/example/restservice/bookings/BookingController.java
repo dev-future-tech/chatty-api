@@ -38,14 +38,14 @@ public class BookingController {
 
     record BookingRequest(String email, @JsonProperty("start_date") String startDate,
                           @JsonProperty("end_date") String endDate,
-                          @JsonProperty("destination_id") Integer destinatonId) {};
+                          @JsonProperty("destination_id") Integer destinationId) {};
 
 
-    @PostMapping()
+    @PostMapping(consumes = {"application/json"})
     public ResponseEntity<String> createBooking(@RequestBody BookingRequest request) {
-        log.debug("Creating booking for {}", request.email());
+        log.info("Creating booking for {}", request.email());
         var customer = customerRepository.findCustomerByEmail(request.email());
-        var destination = destinationRepository.findByDestinationId(request.destinatonId().longValue());
+        var destination = destinationRepository.findByDestinationId(request.destinationId().longValue());
         if (customer == null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Customer not found");
         }

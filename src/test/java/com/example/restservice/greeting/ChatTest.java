@@ -6,9 +6,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.PromptChatMemoryAdvisor;
 import org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor;
-import org.springframework.ai.chat.memory.ChatMemory;
-import org.springframework.ai.chat.memory.repository.jdbc.JdbcChatMemoryRepository;
-import org.springframework.ai.chat.memory.repository.jdbc.JdbcChatMemoryRepositoryDialect;
 import org.springframework.ai.chat.messages.Message;
 import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.ai.chat.model.Generation;
@@ -22,13 +19,20 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.core.convert.support.DefaultConversionService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.test.context.ActiveProfiles;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.ollama.OllamaContainer;
 
 import javax.sql.DataSource;
 import java.util.List;
 import java.util.Map;
 
 @SpringBootTest
+@ActiveProfiles(value="ML")
 public class ChatTest {
+
+    @Container
+    static OllamaContainer ollamaContainer = new OllamaContainer("ollama/ollama:0.1.32");
 
     @Autowired
     OpenAiApi openAiApi;
@@ -41,6 +45,7 @@ public class ChatTest {
 
     @Autowired
     ChatClient.Builder chatClientBuilder;
+
     @Autowired
     private DataSource dataSource;
 

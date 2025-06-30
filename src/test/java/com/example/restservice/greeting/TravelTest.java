@@ -14,11 +14,13 @@ import org.springframework.ai.chat.prompt.SystemPromptTemplate;
 import org.springframework.ai.template.st.StTemplateRenderer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Profile;
 
 import java.util.List;
 import java.util.Map;
 
-@SpringBootTest
+@Profile(value={"ML"})
+@SpringBootTest()
 public class TravelTest {
 
     @Autowired

@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class SocketController {
+    private SocketIOServer socketIOServer;
 
     private final Logger log = LoggerFactory.getLogger(this.getClass());
     protected final SocketIOServer socketServer;
