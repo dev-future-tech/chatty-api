@@ -3,9 +3,12 @@ package com.example.restservice.bookings;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.net.URI;
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -14,10 +17,15 @@ public class BookingController {
 
     private final Logger log = LoggerFactory.getLogger(BookingController.class);
 
-    BookingRepository bookingRepository;
+    final BookingRepository bookingRepository;
+    final CustomerRepository customerRepository;
+    final DestinationRepository destinationRepository;
 
-    public BookingController(BookingRepository bookingRepository) {
+    public BookingController(BookingRepository bookingRepository, CustomerRepository customerRepository,
+                             DestinationRepository destinationRepository) {
         this.bookingRepository = bookingRepository;
+        this.customerRepository = customerRepository;
+        this.destinationRepository = destinationRepository;
     }
 
     @GetMapping("/{customerId}")
@@ -32,9 +40,27 @@ public class BookingController {
                           @JsonProperty("end_date") String endDate,
                           @JsonProperty("destination_id") Integer destinatonId) {};
 
+
     @PostMapping()
-    public ResponseEntity<Void> createBooking(@RequestBody BookingRequest request) {
+    public ResponseEntity<String> createBooking(@RequestBody BookingRequest request) {
         log.debug("Creating booking for {}", request.email());
-        return ResponseEntity.ok().build();
+        var customer = customerRepository.findCustomerByEmail(request.email());
+        var destination = destinationRepository.findByDestinationId(request.destinatonId().longValue());
+        if (customer == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Customer not found");
+        }
+
+        if(destination == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Destination not found");
+        }
+
+        var booking = new CustomerBooking();
+        booking.setCustomer(customer);
+        booking.setDestination(destination.getCity());
+        booking.setStartDate(LocalDate.parse(request.startDate()));
+        booking.setEndDate(LocalDate.parse(request.endDate()));
+        var saved = bookingRepository.save(booking);
+
+        return ResponseEntity.created(URI.create(String.format("/booking/%d", saved.getBookingId()))).build();
     }
 }
