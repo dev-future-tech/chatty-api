@@ -13,13 +13,10 @@ import org.springframework.ai.chat.prompt.*;
 import org.springframework.ai.converter.BeanOutputConverter;
 import org.springframework.ai.converter.ListOutputConverter;
 import org.springframework.ai.converter.MapOutputConverter;
-import org.springframework.ai.openai.api.OpenAiApi;
 import org.springframework.ai.template.st.StTemplateRenderer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.core.convert.support.DefaultConversionService;
-import org.springframework.http.ResponseEntity;
-import org.springframework.test.context.ActiveProfiles;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.ollama.OllamaContainer;
 
@@ -28,14 +25,10 @@ import java.util.List;
 import java.util.Map;
 
 @SpringBootTest
-@ActiveProfiles(value="ML")
 public class ChatTest {
 
     @Container
     static OllamaContainer ollamaContainer = new OllamaContainer("ollama/ollama:0.1.32");
-
-    @Autowired
-    OpenAiApi openAiApi;
 
     @Autowired
     ChatModel chatModel;
@@ -45,7 +38,6 @@ public class ChatTest {
 
     @Autowired
     ChatClient.Builder chatClientBuilder;
-
     @Autowired
     private DataSource dataSource;
 
@@ -62,19 +54,23 @@ public class ChatTest {
                 { "$schema" : "https://json-schema.org/draft/2020-12/schema" }
                 ```
                 """;
-        OpenAiApi.ChatCompletionMessage message = new OpenAiApi.ChatCompletionMessage(
-                content,
-                OpenAiApi.ChatCompletionMessage.Role.USER,
-                "anthony",
-                "abn",
-                null,
-                null,
-                null, null
-        );
-        OpenAiApi.ChatCompletionRequest request = new OpenAiApi.ChatCompletionRequest(List.of(message), "llama3.2", 0.7);
 
-        ResponseEntity<OpenAiApi.ChatCompletion> completion = openAiApi.chatCompletionEntity(request);
-        System.out.println(completion.toString());
+        PromptTemplate template = PromptTemplate.builder()
+                .template(content)
+                .build();
+
+        ChatClient chatClient = chatClientBuilder
+                .defaultAdvisors(List.of(new SimpleLoggerAdvisor(), jdbcAdvisor))
+                .build();
+
+        String result = chatClient.prompt(template.create())
+                .advisors(List.of(new SimpleLoggerAdvisor(), jdbcAdvisor))
+                .call()
+                .content();
+
+        System.out.println(result);
+
+
     }
 
 
