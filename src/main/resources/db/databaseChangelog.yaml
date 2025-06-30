@@ -90,3 +90,16 @@ databaseChangeLog:
               - column:
                   name: image_url
                   type: varchar(150)
+  - changeSet:
+      id: 4
+      author: Anthony Ikeda
+      changes:
+        - addColumn:
+            tableName: customer
+            columns:
+              - column:
+                  name: email
+                  type: varchar(120)
+                  constraints:
+                    nullable: true
+

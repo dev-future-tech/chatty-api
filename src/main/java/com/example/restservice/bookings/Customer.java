@@ -16,6 +16,9 @@ public class Customer {
     @Column(name="customer_name")
     private String customerName;
 
+    @@Column(name="email")
+    private String email;
+
     public int getCustomerId() {
         return customerId;
     }
@@ -30,5 +33,13 @@ public class Customer {
 
     public void setCustomerName(String customerName) {
         this.customerName = customerName;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 }
