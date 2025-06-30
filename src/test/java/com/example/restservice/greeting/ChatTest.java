@@ -6,9 +6,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.PromptChatMemoryAdvisor;
 import org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor;
-import org.springframework.ai.chat.memory.ChatMemory;
-import org.springframework.ai.chat.memory.repository.jdbc.JdbcChatMemoryRepository;
-import org.springframework.ai.chat.memory.repository.jdbc.JdbcChatMemoryRepositoryDialect;
 import org.springframework.ai.chat.messages.Message;
 import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.ai.chat.model.Generation;
@@ -16,12 +13,10 @@ import org.springframework.ai.chat.prompt.*;
 import org.springframework.ai.converter.BeanOutputConverter;
 import org.springframework.ai.converter.ListOutputConverter;
 import org.springframework.ai.converter.MapOutputConverter;
-import org.springframework.ai.openai.api.OpenAiApi;
 import org.springframework.ai.template.st.StTemplateRenderer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.core.convert.support.DefaultConversionService;
-import org.springframework.http.ResponseEntity;
 
 import javax.sql.DataSource;
 import java.util.List;
@@ -29,9 +24,6 @@ import java.util.Map;
 
 @SpringBootTest
 public class ChatTest {
-
-    @Autowired
-    OpenAiApi openAiApi;
 
     @Autowired
     ChatModel chatModel;
@@ -46,6 +38,7 @@ public class ChatTest {
 
     @Test
     public void testChat() {
+        
         String content = """
                 Write a poem made up of 5 lines
                 Your response should be in JSON format.
@@ -57,19 +50,23 @@ public class ChatTest {
                 { "$schema" : "https://json-schema.org/draft/2020-12/schema" }
                 ```
                 """;
-        OpenAiApi.ChatCompletionMessage message = new OpenAiApi.ChatCompletionMessage(
-                content,
-                OpenAiApi.ChatCompletionMessage.Role.USER,
-                "anthony",
-                "abn",
-                null,
-                null,
-                null, null
-        );
-        OpenAiApi.ChatCompletionRequest request = new OpenAiApi.ChatCompletionRequest(List.of(message), "llama3.2", 0.7);
 
-        ResponseEntity<OpenAiApi.ChatCompletion> completion = openAiApi.chatCompletionEntity(request);
-        System.out.println(completion.toString());
+        PromptTemplate template = PromptTemplate.builder()
+                .template(content)
+                .build();
+
+        ChatClient chatClient = chatClientBuilder
+                .defaultAdvisors(List.of(new SimpleLoggerAdvisor(), jdbcAdvisor))
+                .build();
+
+        String result = chatClient.prompt(template.create())
+                .advisors(List.of(new SimpleLoggerAdvisor(), jdbcAdvisor))
+                .call()
+                .content();
+
+        System.out.println(result);
+
+
     }
 
 
