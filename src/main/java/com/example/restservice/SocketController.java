@@ -21,19 +21,16 @@ public class SocketController {
         this.socketServer.addEventListener("demoEvent", SocketDetail.class, demoEvent);
     }
 
-    public DataListener<SocketDetail> demoEvent = new DataListener<>() {
-        @Override
-        public void onData(SocketIOClient client, SocketDetail socketDetail, AckRequest ackRequest) {
-            log.info("Demo event received: {}", socketDetail.getName());
+    public DataListener<SocketDetail> demoEvent = (client, socketDetail, ackRequest) -> {
+        log.info("Demo event received: {}", socketDetail.getName());
 
-            log.info("Prompting chat completions...");
+        log.info("Prompting chat completions...");
 
-            log.info("Chat completions complete!");
+        log.info("Chat completions complete!");
 
-            SocketResponse response = new SocketResponse();
+        SocketResponse response = new SocketResponse();
 
-            response.setPrevMessage(socketDetail.getName());
-            ackRequest.sendAckData(response);
-        }
+        response.setPrevMessage(socketDetail.getName());
+        ackRequest.sendAckData(response);
     };
 }

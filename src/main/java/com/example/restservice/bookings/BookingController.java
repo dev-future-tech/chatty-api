@@ -59,6 +59,7 @@ public class BookingController {
         booking.setDestination(destination.getCity());
         booking.setStartDate(LocalDate.parse(request.startDate()));
         booking.setEndDate(LocalDate.parse(request.endDate()));
+        booking.setTotalCost(0.0);
         var saved = bookingRepository.save(booking);
 
         return ResponseEntity.created(URI.create(String.format("/booking/%d", saved.getBookingId()))).build();

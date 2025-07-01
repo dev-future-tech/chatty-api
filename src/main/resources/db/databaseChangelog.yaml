@@ -102,4 +102,84 @@ databaseChangeLog:
                   type: varchar(120)
                   constraints:
                     nullable: true
+  - changeSet:
+      id: 5
+      author: Anthony Ikeda
+      changes:
+        - createTable:
+            tableName: airlines
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: name
+                  type: varchar(90)
+        - createTable:
+            tableName: airports
+            columns:
+              - column:
+                  name: airport_id
+                  type: bigint
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: airport_name
+                  type: varchar(90)
+              - column:
+                  name: timezone
+                  type: varchar(10)
+        - createTable:
+            tableName: flights
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: origin_id
+                  type: bigint
+                  constraints:
+                    referencedTableName: destinations
+                    referencedColumnNames: destination_id
+                    foreignKeyName: fk_origin_destination
+              - column:
+                  name: destination_id
+                  type: bigint
+                  constraints:
+                    referencedTableName: destinations
+                    referencedColumnNames: destination_id
+                    foreignKeyName: fk_flight_destination
+              - column:
+                  name: airport_id
+                  type: bigint
+                  constraints:
+                    referencedTableName: airports
+                    referencedColumnNames: airport_id
+                    foreignKeyName: fk_flight_airport
+              - column:
+                  name: departure_date
+                  type: date
+              - column:
+                  name: departure_time
+                  type: time
+              - column:
+                  name: arrival_date
+                  type: date
+              - column:
+                  name: arrival_time
+                  type: time
+
+
+
+
 

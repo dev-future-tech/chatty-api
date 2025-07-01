@@ -1,5 +1,6 @@
 package com.example.restservice;
 
+import com.corundumstudio.socketio.AuthorizationResult;
 import com.corundumstudio.socketio.Configuration;
 import com.corundumstudio.socketio.SocketIOServer;
 import jakarta.annotation.PreDestroy;
@@ -38,6 +39,7 @@ public class SocketIOConfig {
 
         server.addConnectListener(client -> log.info("Client connected: {}", client.getSessionId()));
         server.addDisconnectListener(client -> log.info("Client disconnected: {}", client.getSessionId()));
+
 
         return server;
     }

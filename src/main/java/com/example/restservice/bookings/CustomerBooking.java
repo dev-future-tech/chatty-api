@@ -13,6 +13,7 @@ import java.time.LocalDate;
 public class CustomerBooking {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name="booking_id")
     private Integer bookingId;
 

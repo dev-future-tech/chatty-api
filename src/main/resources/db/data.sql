@@ -52,3 +52,17 @@ insert into destinations (city, description)
 values ('Bangkok,Thailand', 'Bangkok is a bustling and exotic metropolis known for its ornate temples, floating markets, spicy street food, and vibrant nightlife along the Chao Phraya River.');
 
 
+
+-- Update Airports
+
+insert into airports(airport_name, timezone) values('Narita Airport (NRT)', '+9');
+insert into airports(airport_name, timezone) values('Charles de Gaulle (CDG)', '0');
+insert into airports(airport_name, timezone) values('Dublin Airport', '0');
+insert into airports(airport_name, timezone) values('Heathrow Airport (LHR)', '0');
+insert into airports(airport_name, timezone) values('Josep Tarradellas Barcelona-El Prat Airport (BCN)', '+2');
+insert into airports(airport_name, timezone) values('Hong Kong International Airport (HKG)', '+8');
+insert into airports(airport_name, timezone) values('Suvarnabhumi Airport (BKK)', '+7');
+
+
+insert into flights(origin_id, destination_id, airport_id, departure_date, departure_time, arrival_date, arrival_time)
+values(6, 1, 1, '2025-08-01', '0900', '2025-08-01', '1600');
