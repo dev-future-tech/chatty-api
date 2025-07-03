@@ -1,6 +1,7 @@
 package com.example.restservice.flights;
 
 import com.example.restservice.bookings.Destination;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 
 @Entity(name="Flight")
@@ -25,15 +26,19 @@ public class Flight {
     private Airport airport;
 
     @Column(name="departure_date")
+    @JsonProperty("departure_date")
     private String departureDate;
 
     @Column(name="departure_time")
+    @JsonProperty("departure_time")
     private String departureTime;
 
     @Column(name="arrival_date")
+    @JsonProperty("arrival_date")
     private String arrivalDate;
 
     @Column(name="arrival_time")
+    @JsonProperty("arrival_time")
     private String arrivalTime;
 
     public Long getId() {

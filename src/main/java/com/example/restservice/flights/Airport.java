@@ -1,5 +1,6 @@
 package com.example.restservice.flights;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 
 @Entity(name ="airport")
@@ -9,9 +10,11 @@ public class Airport {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name="airport_id")
+    @JsonProperty("airport_id")
     private Long airportId;
 
     @Column(name="airport_name")
+    @JsonProperty("airport_name")
     private String airportName;
 
     @Column(name="timezone")
