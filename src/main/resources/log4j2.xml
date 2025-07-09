@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Configuration status="INFO" xmlns="https://logging.apache.org/xml/ns"
+               xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+               xsi:schemaLocation="
+                   https://logging.apache.org/xml/ns
+                   https://logging.apache.org/xml/ns/log4j-config-2.xsd https://logging.apache.org/xml/ns ">
+    <Appenders>
+        <Console name="console" target="SYSTEM_OUT">
+            <PatternLayout pattern="%d{yyy-MM-dd HH:mm:ss} %-5p %c{1}:%L - %m%n"/>
+        </Console>
+        <RollingFile name="FILE" filePattern="logs/chatty-api.%d{yyyy-MM-dd}.log" >
+            <PatternLayout pattern="%d{yyy-MM-dd HH:mm:ss} %-5p %c{1}:%L - %m%n"/>
+            <SizeBasedTriggeringPolicy size="10MB" />
+        </RollingFile>
+    </Appenders>
+    <Loggers>
+        <Root level="INFO">
+            <AppenderRef ref="console" />
+            <AppenderRef ref="FILE" />
+        </Root>
+        <Logger name="com.example.restservice" level="DEBUG">
+            <AppenderRef ref="console" />
+            <AppenderRef ref="FILE" />
+        </Logger>
+    </Loggers>
+</Configuration>

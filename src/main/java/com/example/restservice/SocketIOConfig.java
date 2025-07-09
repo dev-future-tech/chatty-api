@@ -1,11 +1,12 @@
 package com.example.restservice;
 
-import com.corundumstudio.socketio.AuthorizationResult;
 import com.corundumstudio.socketio.Configuration;
 import com.corundumstudio.socketio.SocketIOServer;
 import jakarta.annotation.PreDestroy;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Profile;
@@ -15,7 +16,7 @@ import org.springframework.stereotype.Component;
 @Component()
 public class SocketIOConfig {
 
-    private final Logger log = LoggerFactory.getLogger(SocketIOConfig.class);
+    private final Logger log = LogManager.getLogger(SocketIOConfig.class);
 
     // I have set the configuration values in application.yaml file
     @Value("${socket.host}")

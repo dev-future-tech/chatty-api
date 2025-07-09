@@ -1,24 +1,23 @@
 package com.example.restservice;
 
-import com.corundumstudio.socketio.AckRequest;
-import com.corundumstudio.socketio.SocketIOClient;
 import com.corundumstudio.socketio.SocketIOServer;
 import com.corundumstudio.socketio.listener.DataListener;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.springframework.stereotype.Component;
 
 @Component
 public class SocketController {
     private SocketIOServer socketIOServer;
 
-    private final Logger log = LoggerFactory.getLogger(this.getClass());
+    private Logger log = LogManager.getLogger(SocketController.class);
     protected final SocketIOServer socketServer;
 
 
     public SocketController(SocketIOServer socketServer) {
         this.socketServer = socketServer;
         this.socketServer.addEventListener("demoEvent", SocketDetail.class, demoEvent);
+        this.socketServer.addEventListener("chatEvent", ChatDetail.class, chatEvent);
     }
 
     public DataListener<SocketDetail> demoEvent = (client, socketDetail, ackRequest) -> {
@@ -31,6 +30,13 @@ public class SocketController {
         SocketResponse response = new SocketResponse();
 
         response.setPrevMessage(socketDetail.getName());
+        ackRequest.sendAckData(response);
+    };
+
+    public DataListener<ChatDetail> chatEvent = (client, chatDetail, ackRequest) -> {
+        log.info("Chat event received: {}, {}", chatDetail.getName(), chatDetail.getMessage());
+        SocketResponse response = new SocketResponse();
+        response.setPrevMessage(chatDetail.getName());
         ackRequest.sendAckData(response);
     };
 }
