@@ -1,9 +1,10 @@
 package com.example.restservice;
 
-import com.corundumstudio.socketio.AuthorizationResult;
 import com.corundumstudio.socketio.Configuration;
 import com.corundumstudio.socketio.SocketIOServer;
 import jakarta.annotation.PreDestroy;
+
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;

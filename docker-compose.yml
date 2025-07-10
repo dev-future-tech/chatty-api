@@ -1,0 +1,17 @@
+name: chatty-api
+
+services:
+  api:
+    image: anthonyikeda/chatty-api:0.0.1-SNAPSHOT
+    volumes:
+      - ./logs:/var/logs
+    environment:
+      LOG_DIR: /var/logs
+      SPRING_DATASOURCE_URL: jdbc:postgresql://host.docker.internal:5432/bookings_db
+      SPRING_DATASOURCE_DRIVER: org.postgresql.Driver
+      SPRING_DATASOURCE_USER: booking_controller
+      SPRING_DATASOURCE_PASSWORD: letmeintothedatabase
+      SPRING_DATASOURCE_DRIVER_CLASS_NAME: org.postgresql.Driver
+    ports:
+      - 8070:8070
+      - 8081:8081

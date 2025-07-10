@@ -76,3 +76,55 @@ Things to note here:
 . You will use the URL you configured in NGINX (in this case `localhost` on port `8090`) for the `spring.ai.openai.base-url`
 
 
+== Containerizing
+
+=== Compile the image
+
+[source,bash]
+----
+$ ./mvnw -Pnative spring-boot:build-image
+----
+
+
+=== Run the Container
+
+[source,bash]
+----
+$ docker run -p 8070:8070 -p 8081:8081 --mount type=bind,src=./logs,dst=/var/logs -eLOG_DIR=/var/logs chatty-api:0.0.1-SNAPSHOT
+----
+
+=== Docker Compose
+
+[source,yaml]
+----
+name: chatty-api
+
+services:
+  database:
+    image: postgres:17
+    restart: always
+    shm_size: 128mb
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: booking_administrator
+      POSTGRES_PASSWORD: letmein
+      POSTGRES_DB: bookings_db
+      PGDATA: /var/lib/postgresql/data/pgdata
+
+  api:
+    image: chatty-api:0.0.1-SNAPSHOT
+    volumes:
+      - ./logs:/var/logs
+    environment:
+      LOG_DIR: /var/logs
+      SPRING_DATASOURCE_URL: jdbc:postgresql://database:5432/bookings_db
+      SPRING_LIQUIBASE_DRIVERCLASSNAME: org.postgresql.Driver
+      SPRING_LIQUIBASE_PASSWORD: letmein
+      SPRING_LIQUIBASE_URL: jdbc:postgresql://database:5432/bookings_db
+      SPRING_LIQUIBASE_USER: booking_controller
+      SPRING_LIQUIBASE_CHANGELOG: classpath:/db/databaseChangelog.yaml
+
+volumes:
+  db-data:
+----
