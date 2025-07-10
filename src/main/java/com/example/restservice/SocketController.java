@@ -2,15 +2,15 @@ package com.example.restservice;
 
 import com.corundumstudio.socketio.SocketIOServer;
 import com.corundumstudio.socketio.listener.DataListener;
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.LogManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 @Component
 public class SocketController {
     private SocketIOServer socketIOServer;
 
-    private Logger log = LogManager.getLogger(SocketController.class);
+    private Logger log = LoggerFactory.getLogger(SocketController.class);
     protected final SocketIOServer socketServer;
 
 
